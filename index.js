@@ -21,6 +21,7 @@ async function run() {
       const productsCollection = database.collection("products");
       const orderCollection = database.collection('order');
       const usersCollection = database.collection('user');
+      const reviewCollection = database.collection('reviews');
       // post api
       app.post('/products', async (req, res) =>{
           const product = req.body;
@@ -34,6 +35,18 @@ async function run() {
           const result = await product.toArray();
           res.send(result);
       });
+      // review post api
+      app.post('/reviews', async (req, res) =>{
+        const review = req.body;
+        const result = await reviewCollection.insertOne(review);
+        res.json(result)
+    });
+    // get products
+    app.get('/reviews', async (req, res) =>{
+        const review = reviewCollection.find({});
+        const result = await review.toArray();
+        res.send(result);
+    });
       // manage all product
       app.get('/manageallproducts', async (req, res) =>{
           const product = productsCollection.find({});
@@ -108,16 +121,16 @@ async function run() {
         res.json(result)
     });
     // //make admin role api
-    // app.get("/users/:email", async (req, res) => {
-    //     const userEmail = req.params.email;
-    //     const userQuery = { email: userEmail };
-    //     const userRole = await usersCollection.findOne(userQuery);
-    //     let isAdmin = false;
-    //     if (userRole?.role === "admin") {
-    //         isAdmin = true;
-    //     }
-    //     res.json({ admin: isAdmin });
-    // });
+    app.get("/users/:email", async (req, res) => {
+        const userEmail = req.params.email;
+        const userQuery = { email: userEmail };
+        const userRole = await usersCollection.findOne(userQuery);
+        let isAdmin = false;
+        if (userRole?.role === "admin") {
+            isAdmin = true;
+        }
+        res.json({ admin: isAdmin });
+    });
     // upsert api 
     app.put('/users', async (req, res) => {
         const user = req.body;
