@@ -20,6 +20,7 @@ async function run() {
       const database = client.db("kikoo");
       const productsCollection = database.collection("products");
       const orderCollection = database.collection('order');
+      const usersCollection = database.collection('user');
       // post api
       app.post('/products', async (req, res) =>{
           const product = req.body;
@@ -87,19 +88,58 @@ async function run() {
         const result = await orderCollection.deleteOne(query);
         res.json(result);
     });
-    // // update order 
-    // app.put('/placeorders/:id', async (req, res) => {
-    //     const id = req.params.id;
-    //     const filter = { _id: ObjectId(id) };
-    //     const options = { upsert: true };
-    //     const statusUpdate = {
-    //         $set: {
-    //             status: 'approved'
-    //         }
-    //     };
-    //     const result = await orderCollection.updateOne(filter, statusUpdate, options);
-    //     res.json(result)
-    // })
+    // get all user
+    app.get('/users', async (req, res) => {
+        const cursor = usersCollection.find({});
+        const allUser = await cursor.toArray();
+        res.json(allUser);
+    });
+    //make admin role
+    app.put('/users/:id', async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const options = { upsert: true };
+        const roleUpdate = {
+            $set: {
+                role: 'admin'
+            }
+        };
+        const result = await usersCollection.updateOne(filter, roleUpdate, options);
+        res.json(result)
+    });
+    // //make admin role api
+    // app.get("/users/:email", async (req, res) => {
+    //     const userEmail = req.params.email;
+    //     const userQuery = { email: userEmail };
+    //     const userRole = await usersCollection.findOne(userQuery);
+    //     let isAdmin = false;
+    //     if (userRole?.role === "admin") {
+    //         isAdmin = true;
+    //     }
+    //     res.json({ admin: isAdmin });
+    // });
+    // upsert api 
+    app.put('/users', async (req, res) => {
+        const user = req.body;
+        const filter = { email: user.email };
+        const options = { upsert: true };
+        const update = { $set: user };
+        const result = await usersCollection.updateOne(filter, update, options);
+        res.json(result)
+    })
+    // update order 
+    app.put('/placeorder/:id', async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const options = { upsert: true };
+        const statusUpdate = {
+            $set: {
+                status: 'approved'
+            }
+        };
+        const result = await orderCollection.updateOne(filter, statusUpdate, options);
+        res.json(result)
+    })
       
     } finally {
     //   await client.close();
