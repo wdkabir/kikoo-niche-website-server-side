@@ -41,7 +41,7 @@ async function run() {
         const result = await reviewCollection.insertOne(review);
         res.json(result)
     });
-    // get products
+    // get review
     app.get('/reviews', async (req, res) =>{
         const review = reviewCollection.find({});
         const result = await review.toArray();
